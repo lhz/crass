@@ -35,11 +35,23 @@ module Crass
       inside_single_quotes = false
       inside_double_quotes = false
       inside_comment       = false
+      backslash_escape     = false
 
       source_code.each_char do |char|
         column += 1
         next if inside_comment && char != '\n'
+        if backslash_escape
+          unless char == '\n'
+            token.add '\\', line, column
+            token.add char, line, column
+          end
+          backslash_escape = false
+          next
+        end
         case char
+        when '\\' # Backslash
+          backslash_escape = true
+          next
         when '\n' # Newline
           unless token.empty?
             statement << token
@@ -66,10 +78,10 @@ module Crass
           end
         when '\'' # Single quote
           token.add char, line, column
-          inside_single_quotes = !inside_single_quotes
+          inside_single_quotes = !inside_single_quotes unless inside_double_quotes
         when '"' # Double quote
           token.add char, line, column
-          inside_double_quotes = !inside_double_quotes
+          inside_double_quotes = !inside_double_quotes unless inside_single_quotes
         when ':' # Statement delimiter
           if token.empty? && !statement.empty?
             source << statement

@@ -21,8 +21,13 @@ Start	lda #<Colours
 	; Multiple statements per line
 	nop : bit $ea : rts ; Comment
 
+	; Line continuation
+	pha \
+	pla \
+	rts
+
 	; Colour table
 Colours	.byte 10, 2
 
 	; Some text
-Text:	.text "some text; includes semicolon" ; and a comment with "quotes"
+Text:	.text "some \"text; with\" semicolon inside quotes; and out" ; and a comment
