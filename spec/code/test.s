@@ -19,7 +19,7 @@ Start	lda #<Colours
 	rts
 
 	; Multiple statements per line
-	nop : bit $ea : rts ; Comment
+Multi:	nop : bit $ea : rts ; Comment
 
 	; Line continuation
 	pha \
