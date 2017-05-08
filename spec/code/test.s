@@ -21,9 +21,10 @@ Start	lda #<Colours
 	; Multiple statements per line
 Multi:	nop : bit $ea : rts ; Comment
 
-	; Line continuation
-	pha \
-	pla \
+	; Line continuations
+	lda \
+	<Colours\
+,x
 	rts
 
 	; Colour table

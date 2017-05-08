@@ -41,7 +41,9 @@ module Crass
         column += 1
         next if inside_comment && char != '\n'
         if backslash_escape
-          unless char == '\n'
+          if char == '\n'
+            line, column = line + 1, 0
+          else
             token.add '\\', line, column
             token.add char, line, column
           end
