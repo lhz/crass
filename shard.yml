@@ -1,0 +1,13 @@
+name: crass
+version: 0.1.0
+
+authors:
+  - Lars Haugseth <git@larshaugseth.com>
+
+targets:
+  crass:
+    main: src/crass.cr
+
+crystal: 0.22.0
+
+license: MIT
