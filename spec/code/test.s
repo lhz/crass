@@ -19,6 +19,11 @@ Start	lda #<Colours
 	bpl -
 +	rts
 
+	lda #0
+	.repeat 10, i
+	sta $0400 + i
+	.endrep
+
 	; Multiple statements per line
 Multi:	nop : bit $ea : rts ; Comment
 

@@ -33,7 +33,7 @@ module Crass
       if debug
         "'#{string}' [#{column - 1}]"
       else
-        "'#{string}'"
+        "«#{string}»"
       end
     end
   end

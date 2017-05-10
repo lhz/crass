@@ -10,7 +10,10 @@ module Crass
       ('A'..'Z').to_a +
       ('0'..'9').to_a +
       ['_', '.', '$']
-    
+
+
+    OPERATOR_CHARS = ['=', '+', '-', '*', '/', '!', '%', '^', '#', '(', ')', '?']
+
     def self.run(source_file)
       parser = Parser.new
       parser.run source_file
@@ -60,10 +63,13 @@ module Crass
           backslash_escape = false
           next
         end
+
         case char
+
         when '\\' # Backslash
           backslash_escape = true
           next
+
         when '\n' # Newline
           if inside_single_quotes || inside_double_quotes
             raise ParseError.new "Unterminated quoted string at line #{token.line}, column #{token.column}: #{token.to_s}"
@@ -78,6 +84,7 @@ module Crass
           end
           inside_comment = false
           line, column = line + 1, 0
+
         when ' ', '\t' # Space or tab
           if inside_single_quotes || inside_double_quotes
             token.add char, line, column
@@ -91,12 +98,15 @@ module Crass
             column -= 1
             column += 8 - (column % 8)
           end
+
         when '\'' # Single quote
           token.add char, line, column
           inside_single_quotes = !inside_single_quotes unless inside_double_quotes
+
         when '"' # Double quote
           token.add char, line, column
           inside_double_quotes = !inside_double_quotes unless inside_single_quotes
+
         when ':' # Statement delimiter
           if token.empty? && !statement.empty?
             source << statement
@@ -104,12 +114,14 @@ module Crass
           else
             token.add char, line, column
           end
+
         when ';' # Comment delimiter
           if inside_single_quotes || inside_double_quotes
             token.add char, line, column
           else
             inside_comment = true
           end
+
         else # Other character
           if inside_single_quotes || inside_double_quotes
             token.add char, line, column
@@ -119,11 +131,20 @@ module Crass
                 statement << token
                 token = Token.new
               end
-              inside_symbol = !inside_symbol
+              # inside_symbol = !inside_symbol
             end
             token.add char, line, column
           end
         end
+
+        if OPERATOR_CHARS.includes?(char)
+          unless token.empty?
+            statement << token
+            token = Token.new
+          end
+        end
+
+        inside_symbol = SYMBOL_CHARS.includes?(char)
       end
 
       return source
@@ -134,7 +155,7 @@ module Crass
       source.each do |statement|
         puts "%#{lwmax}d: %s" % [
                statement[0].line,
-               statement.map(&.to_s).join " | "
+               statement.map(&.to_s).join " "
              ]
       end
     end
