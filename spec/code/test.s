@@ -11,12 +11,13 @@ Start	lda #<Colours
 	lda #>Colours
 	sta COLOURS + 1
 
+	bcs +
 	ldy #1
-:	lda (COLOURS),y
+-	lda (COLOURS),y
 	sta $D020,y
 	dey
 	bpl -
-	rts
++	rts
 
 	; Multiple statements per line
 Multi:	nop : bit $ea : rts ; Comment
@@ -32,3 +33,5 @@ Colours	.byte 10, 2
 
 	; Some text
 Text:	.text "some \"text; with\" semicolon inside quotes; and out" ; and a comment
+
+	;.text "unterminated quote

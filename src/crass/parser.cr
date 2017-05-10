@@ -3,6 +3,14 @@ require "./token"
 module Crass
   class Parser
 
+    class ParseError < Exception; end;
+
+    SYMBOL_CHARS =
+      ('a'..'z').to_a +
+      ('A'..'Z').to_a +
+      ('0'..'9').to_a +
+      ['_', '.', '$']
+    
     def self.run(source_file)
       parser = Parser.new
       parser.run source_file
@@ -35,9 +43,11 @@ module Crass
       inside_single_quotes = false
       inside_double_quotes = false
       inside_comment       = false
+      inside_symbol        = false
       backslash_escape     = false
 
       source_code.each_char do |char|
+        next if char == '\r'
         column += 1
         next if inside_comment && char != '\n'
         if backslash_escape
@@ -55,6 +65,9 @@ module Crass
           backslash_escape = true
           next
         when '\n' # Newline
+          if inside_single_quotes || inside_double_quotes
+            raise ParseError.new "Unterminated quoted string at line #{token.line}, column #{token.column}: #{token.to_s}"
+          end
           unless token.empty?
             statement << token
             token = Token.new
@@ -98,7 +111,18 @@ module Crass
             inside_comment = true
           end
         else # Other character
-          token.add char, line, column
+          if inside_single_quotes || inside_double_quotes
+            token.add char, line, column
+          else
+            if inside_symbol != SYMBOL_CHARS.includes?(char)
+              unless token.empty?
+                statement << token
+                token = Token.new
+              end
+              inside_symbol = !inside_symbol
+            end
+            token.add char, line, column
+          end
         end
       end
 
